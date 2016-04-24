@@ -23,6 +23,7 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+pip-selfcheck.*
 
 # Static Distro
 !main/static/
@@ -61,10 +62,14 @@ docs/_build/
 # PyBuilder
 target/
 
-#Ipython Notebook
+# Ipython Notebook
 .ipynb_checkpoints
 
-#Backup files
+# Backup files
 *.sh~
 *.py~
 
+# Windows Virtualenv Configuration
+Scripts/
+Include/
+Lib/
