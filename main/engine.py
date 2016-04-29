@@ -2,10 +2,14 @@ import random
 
 # My Imports
 from datadef import error_population, list_map_tiles
+from collections import defaultdict
+
+# Local Constants
+infPoint = 8
 
 # Define array for data saving
-map_data = []
-map_growing_rate = []
+map_data = defaultdict(lambda: defaultdict(int))
+map_growing_rate = defaultdict(lambda: defaultdict(int))
 
 
 def initializeRandomMap(x, y):
@@ -13,10 +17,10 @@ def initializeRandomMap(x, y):
 
     # We'll fillout all array with valid and random information
     if x > 0 and y > 0:
-        for AxisX in (x):
-            for AxisY in (y):
-                map_data[AxisX, AxisY] = random.choice(list_map_tiles)
-                map_growing_rate[AxisX, AxisY] = 1
+        for AxisX in range(0, x):
+            for AxisY in range(0, y):
+                map_data[AxisX][AxisY] = random.choice(list_map_tiles)
+                map_growing_rate[AxisX][AxisY] = 1
     else:
         return False
 
@@ -29,9 +33,14 @@ def initializeRandomMap(x, y):
     return True
 
 
-def initializeSchematicMap(x, y, cx=x / 2, cy=y / 2):
-    # Return amount of population in the city
+def initializeSchematicMap(x, y, cx, cy):
+    # Return amount of population in the city or error_population code.
     global map_data, map_growing_rate
+
+    if cx > x:
+        cx = x / 2
+    if cy > y:
+        cy = y / 2
 
     # We'll generate a city with an specific center
     if x > 0 and y > 0:
@@ -42,21 +51,30 @@ def initializeSchematicMap(x, y, cx=x / 2, cy=y / 2):
         if map_data[cx, cy] != '00091':
             map_data[cx, cy] = '00091'
             map_growing_rate[cx, cy] = 10
-
     else:
         return error_population['NO_LIMITS']
 
 
-def showMap(x, y):
+def showMap(x, y, asHTML=True):
     # Print the Map structure
 
     if x > 0 and y > 0:
-        for AxisX in (x):
-            print "<tr>"
+        for AxisX in range(0, x):
+            if asHTML:
+                print "<tr>"
+            for AxisY in range(0, y):
+                if asHTML:
+                    print
+                    # print '<td title="Growing Rate: ' + \
+                    #     map_growing_rate[AxisX][AxisY] + '">' + \
+                    #     str(map_data[AxisX][AxisY]) + '</td>'
+                else:
+                    print map_data[AxisX][AxisY]
 
-            for AxisY in (y):
-                print '<td title="Growing Rate: ' + \
-                      map_growing_rate[AxisX, AxisY] + '">' + \
-                      map_data[AxisX, AxisY] + "</td>"
+            if asHTML:
+                print "</tr>"
 
-            print "</tr>"
+
+def evaluateCityPatern(x, y):
+    # Return amount of population in the growing area.
+    global map_data, map_growing_rate
