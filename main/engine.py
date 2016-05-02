@@ -1,7 +1,7 @@
 import random
 
 # My Imports
-from datadef import error_population, list_map_tiles
+from main.datadef import error_population, list_map_tiles
 from collections import defaultdict
 
 # Local Constants
@@ -61,20 +61,39 @@ def showMap(x, y, asHTML=True):
     if x > 0 and y > 0:
         for AxisX in range(0, x):
             if asHTML:
-                print "<tr>"
+                print("<tr>")
             for AxisY in range(0, y):
                 if asHTML:
-                    print
-                    # print '<td title="Growing Rate: ' + \
-                    #     map_growing_rate[AxisX][AxisY] + '">' + \
-                    #     str(map_data[AxisX][AxisY]) + '</td>'
+                    print('<td title="Growing Rate: ' +
+                          map_growing_rate[AxisX][AxisY] + '">' +
+                          str(map_data[AxisX][AxisY]) + '</td>')
                 else:
-                    print map_data[AxisX][AxisY]
+                    print(map_data[AxisX][AxisY])
 
             if asHTML:
-                print "</tr>"
+                print("</tr>")
 
 
 def evaluateCityPatern(x, y):
     # Return amount of population in the growing area.
+    # This function evauate the influence received for all sorounding slots
+    # of a given point of the map.
     global map_data, map_growing_rate
+
+    randomizer = 20
+    choisenone = 0
+    for AxisX in range(x - 1, x + 1):
+        for AxisY in range(y - 1, y + 1):
+            if map_data[AxisX][AxisY] != 0:
+                if choisenone <= 6:
+                    if randint(0, 100) < randomizer:
+                        choisenone += 1
+                        randomizer = 20
+                    else:
+                        randomizer += 25
+                    if choisenone <= 4:
+                        map_growing_rate[AxisX][AxisY] += randint(1, 4)
+                    else:
+                        map_growing_rate[AxisX][AxisY] += 1
+                else:
+                    break
