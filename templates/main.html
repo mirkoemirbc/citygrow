@@ -1,5 +1,16 @@
 {% extends "base.html" %}
 
 {% block bodycontent %}
-<h2>Hello World</h2>
+<h2>Bello World</h2>
+<table>
+    {% for row in map_data.items() %}
+    <tr>
+        {% for col in row.items() %}
+        <td>
+            {{ col }}
+        </td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>
 {% endblock bodycontent %}
