@@ -27,8 +27,8 @@ def initializeRandomMap(x, y):
     # Define the City Center spot
     rand_x = int(x / 2) + random.randint(-2, 2)
     rand_y = int(y / 2) + random.randint(-2, 2)
-    map_data[rand_x, rand_y] = '00091'
-    map_growing_rate[rand_x, rand_y] = 10
+    map_data[rand_x][rand_y] = '00091'
+    map_growing_rate[rand_x][rand_y] = 10
 
     return True
 
@@ -48,9 +48,9 @@ def initializeSchematicMap(x, y, cx, cy):
             return error_population['OUT_OF_CENTER']
 
         # Define the City Center spot
-        if map_data[cx, cy] != '00091':
-            map_data[cx, cy] = '00091'
-            map_growing_rate[cx, cy] = 10
+        if map_data[cx][cy] != '00091':
+            map_data[cx][cy] = '00091'
+            map_growing_rate[cx][cy] = 10
     else:
         return error_population['NO_LIMITS']
 
@@ -65,8 +65,8 @@ def showMap(x, y, asHTML=True):
             for AxisY in range(0, y):
                 if asHTML:
                     print('<td title="Growing Rate: ' +
-                          map_growing_rate[AxisX][AxisY] + '">' +
-                          str(map_data[AxisX][AxisY]) + '</td>')
+                          str(map_growing_rate[AxisX][AxisY]) + '">' +
+                          map_data[AxisX][AxisY] + '</td>')
                 else:
                     print(map_data[AxisX][AxisY])
 
@@ -74,7 +74,7 @@ def showMap(x, y, asHTML=True):
                 print("</tr>")
 
 
-def evaluateCityPatern(x, y):
+def evaluateCityGrow(x, y):
     # Return amount of population in the growing area.
     # This function evauate the influence received for all sorounding slots
     # of a given point of the map.
@@ -86,14 +86,25 @@ def evaluateCityPatern(x, y):
         for AxisY in range(y - 1, y + 1):
             if map_data[AxisX][AxisY] != 0:
                 if choisenone <= 6:
-                    if randint(0, 100) < randomizer:
+                    if random.randint(0, 100) < randomizer:
                         choisenone += 1
                         randomizer = 20
                     else:
                         randomizer += 25
                     if choisenone <= 4:
-                        map_growing_rate[AxisX][AxisY] += randint(1, 4)
+                        map_growing_rate[AxisX][AxisY] += random.randint(1, 4)
                     else:
                         map_growing_rate[AxisX][AxisY] += 1
                 else:
                     break
+
+
+def findCityCenter(x, y):
+    # This function will find and return the AxisX and AxisY where
+    # the City Center is located.
+    for AxisX in range(0, x):
+        for AxisY in range(0, y):
+            if map_data[AxisX][AxisY] == '00091':
+                return AxisX, AxisY
+
+    return 0, 0
