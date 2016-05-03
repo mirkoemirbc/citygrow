@@ -7,6 +7,15 @@ from collections import defaultdict
 # Local Constants
 infPoint = 8
 
+# Define static list of tuple with tiles code and influence.
+map_tiles_value = (('00000', 0.5), ('00003', 0.5), ('00011', 0.5),
+                   ('00012', 1.0), ('00013', 1.0), ('00022', 1.0),
+                   ('00041', 1.0), ('00061', 1.0), ('00073', 1.0),
+                   ('00083', 1.0), ('00302', 1.0), ('00402', 1.0),
+                   ('00501', 1.0))
+
+map_tiles_center = ('00091', 10.0)
+
 # Define array for data saving
 map_data = defaultdict(lambda: defaultdict(int))
 map_growing_rate = defaultdict(lambda: defaultdict(int))
@@ -31,28 +40,6 @@ def initializeRandomMap(x, y):
     map_growing_rate[rand_x][rand_y] = 10
 
     return True
-
-
-def initializeSchematicMap(x, y, cx, cy):
-    # Return amount of population in the city or error_population code.
-    global map_data, map_growing_rate
-
-    if cx > x:
-        cx = x / 2
-    if cy > y:
-        cy = y / 2
-
-    # We'll generate a city with an specific center
-    if x > 0 and y > 0:
-        if cx > (x / 4) or cy > (y / 4):
-            return error_population['OUT_OF_CENTER']
-
-        # Define the City Center spot
-        if map_data[cx][cy] != '00091':
-            map_data[cx][cy] = '00091'
-            map_growing_rate[cx][cy] = 10
-    else:
-        return error_population['NO_LIMITS']
 
 
 def evaluateCityGrow(x, y):
@@ -126,8 +113,8 @@ class UserCityMap:
         self.xcenter = int(self.xmax / 2) + random.randint(-2, 2)
         self.ycenter = int(self.ymax / 2) + random.randint(-2, 2)
         # Change the City Center Code here
-        self.citymap[self.xcenter][self.ycenter] = '00091'
-        self.citymapinf[self.xcenter][self.ycenter] = 10.0
+        self.citymap[self.xcenter][self.ycenter] = map_tiles_center[0]
+        self.citymapinf[self.xcenter][self.ycenter] = map_tiles_center[1]
 
     def citycenter(self):
         """ Return the axis_x and axis_y where the City Center is located. """
