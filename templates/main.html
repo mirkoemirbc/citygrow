@@ -2,10 +2,10 @@
 
 {% block bodycontent %}
 <h2>Bello World</h2>
-<table>
-    {% for row in map_data.items() %}
+<table class="table">
+    {% for row in map_data %}
     <tr>
-        {% for col in row.items() %}
+        {% for col in row %}
         <td>
             {{ col }}
         </td>
@@ -13,4 +13,18 @@
     </tr>
     {% endfor %}
 </table>
+<br>
+<br>
+<table class="table">
+    {% for row in user_map %}
+    <tr>
+        {% for col in row %}
+        <td title="Influencia: ">
+            {{ col }}
+        </td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>
+
 {% endblock bodycontent %}
