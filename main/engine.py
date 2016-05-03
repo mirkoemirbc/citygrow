@@ -55,25 +55,6 @@ def initializeSchematicMap(x, y, cx, cy):
         return error_population['NO_LIMITS']
 
 
-def showMap(x, y, asHTML=True):
-    # Print the Map structure
-
-    if x > 0 and y > 0:
-        for AxisX in range(0, x):
-            if asHTML:
-                print("<tr>")
-            for AxisY in range(0, y):
-                if asHTML:
-                    print('<td title="Growing Rate: ' +
-                          str(map_growing_rate[AxisX][AxisY]) + '">' +
-                          map_data[AxisX][AxisY] + '</td>')
-                else:
-                    print(map_data[AxisX][AxisY])
-
-            if asHTML:
-                print("</tr>")
-
-
 def evaluateCityGrow(x, y):
     # Return amount of population in the growing area.
     # This function evauate the influence received for all sorounding slots
@@ -108,3 +89,50 @@ def findCityCenter(x, y):
                 return AxisX, AxisY
 
     return 0, 0
+
+
+# **************************************************************** #
+#                    BORRON Y CUENTA NUEVA                         #
+#                 OTRA FORMA DE HACER LO MISMO                     #
+# **************************************************************** #
+#  CLASS DEFINITION                                                #
+# **************************************************************** #
+
+class UserCityMap:
+    """ The City Map class """
+    def __init__(self, xmax, ymax):
+        self.xmax = xmax
+        self.ymax = ymax
+        self.citymap = []
+        self.citymapinf = []
+        self.player = 0
+        self.xcenter = 0
+        self.ycenter = 0
+        self.initcitymap()
+
+    def initcitymap(self):
+        """ Initiate the City Map randomly """
+        for axis_x in range(self.xmax):
+            col = []
+            inf = []
+            for axis_y in range(self.ymax):
+                col.append(random.choice(list_map_tiles))
+                inf.append(1.0)
+
+            self.citymapinf.append(inf)
+            self.citymap.append(col)
+
+        # Define the City Center spot
+        self.xcenter = int(self.xmax / 2) + random.randint(-2, 2)
+        self.ycenter = int(self.ymax / 2) + random.randint(-2, 2)
+        # Change the City Center Code here
+        self.citymap[self.xcenter][self.ycenter] = '00091'
+        self.citymapinf[self.xcenter][self.ycenter] = 10.0
+
+    def citycenter(self):
+        """ Return the axis_x and axis_y where the City Center is located. """
+        return [self.xcenter, self.ycenter]
+
+    def citygrow(self, x, y):
+        """ Evaluate a point in the map and grow the zone sorrounding """
+        return

@@ -1,1 +1,5 @@
 /* Add here all your css styles (customizations) */
+
+.table > tbody > tr > td {
+	padding: 3px;
+}
