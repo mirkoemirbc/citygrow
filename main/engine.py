@@ -1,7 +1,7 @@
 import random
 
 # My Imports
-from main.datadef import error_population, list_map_tiles
+from main.datadef import list_map_tiles
 from collections import defaultdict
 
 # Local Constants
@@ -67,17 +67,6 @@ def evaluateCityGrow(x, y):
                     break
 
 
-def findCityCenter(x, y):
-    # This function will find and return the AxisX and AxisY where
-    # the City Center is located.
-    for AxisX in range(0, x):
-        for AxisY in range(0, y):
-            if map_data[AxisX][AxisY] == '00091':
-                return AxisX, AxisY
-
-    return 0, 0
-
-
 # **************************************************************** #
 #                    BORRON Y CUENTA NUEVA                         #
 #                 OTRA FORMA DE HACER LO MISMO                     #
@@ -87,6 +76,7 @@ def findCityCenter(x, y):
 
 class UserCityMap:
     """ The City Map class """
+
     def __init__(self, xmax, ymax):
         self.xmax = xmax
         self.ymax = ymax
@@ -122,4 +112,32 @@ class UserCityMap:
 
     def citygrow(self, x, y):
         """ Evaluate a point in the map and grow the zone sorrounding """
-        return
+        randomizer = 20
+        choisenone = 0
+        for axis_x in range(x - 1 if x - 1 >= 0 else 0,
+                            x + 1 if x + 1 <= self.xmax else self.xmax):
+            for axis_y in range(y - 1 if y - 1 >= 0 else 0,
+                                y + 1 if y + 1 <= self.ymax else self.ymax):
+                if axis_x != x and axis_y != y:
+                    if choisenone <= 6:
+                        if random.randint(0, 100) < randomizer:
+                            choisenone += 1
+                            randomizer = 20
+                        else:
+                            randomizer += 25
+                        if choisenone <= 4:
+                            rn = random.randint(1, 3) + random.random()
+                            if self.citymapinf[axis_x][axis_y] + rn < self.citymapinf[x][y]:
+                                self.citymapinf[axis_x][axis_y] += rn
+                            else:
+                                self.citymapinf[axis_x][axis_y] = self.citymapinf[x][y]
+                        else:
+                            if self.citymapinf[axis_x][axis_y] + 1 < self.citymapinf[x][y]:
+                                self.citymapinf[axis_x][axis_y] += 1
+
+        # TODO: recorrer los edificios cercanos al punto y sumar habitantes,
+        # si ha llegado al 80% de la influencia total. Luego marcar como
+        # "no cambiante".
+        # TODO: Clase tile con una matriz de 5x5
+        # TODO: Recorrer los tiles de la zona de influencia, desmarcando los
+        # que eran "no cambiante"
