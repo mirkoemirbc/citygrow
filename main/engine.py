@@ -84,17 +84,16 @@ def evaluateCityGrow(x, y):
 class CityMapTile:
     """ The tile information """
 
-    def __init__(self, x, y, xorig=0, yorig=0, mapid=0):
-        self.x = x
-        self.y = y
+    available = 1
+    tiletype = '00000'
+    influence = 1
+    population = 0
+
+    def __init__(self, x, y, xorig=0, yorig=0):
+        self.axis_x = x
+        self.axis_y = y
         self.xorig = xorig
         self.yorig = yorig
-        self.available = 1
-        self.type = '00000'
-        self.hp = 0
-        self.hp_total = 0
-        self.influence = 1
-        self.population = 0
 
     def movepopulation(self, population):
         self.population = population
@@ -105,18 +104,38 @@ class CityMapTile:
         return inf
 
 
+class CityMapBlock:
+    """ The object to store each block in the City Map """
+
+    hitpoint = 0
+    hp_total = 0
+    populationtotal = 0
+    tileset = []
+
+    def __init__(self, x, y, xorig=0, yorig=0):
+        self.axis_x = x
+        self.axis_y = y
+        self.xorig = xorig
+        self.yorig = yorig
+        self.tilesetinit()
+
+    def tilesetinit(self):
+        return
+
+
 class UserCityMap:
     """ The City Map class """
+
+    self.citymap = []
+    self.citymapinf = []
+    self.population = []
+    self.xcenter = 0
+    self.ycenter = 0
 
     def __init__(self, xmax, ymax, playerid=0):
         self.xmax = xmax
         self.ymax = ymax
-        self.citymap = []
-        self.citymapinf = []
         self.player = playerid
-        self.xcenter = 0
-        self.ycenter = 0
-        self.population = []
         self.initcitymap()
 
     def initcitymap(self):
