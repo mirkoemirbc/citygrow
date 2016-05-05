@@ -75,9 +75,6 @@ def evaluateCityGrow(x, y):
 
 
 # **************************************************************** #
-#                    BORRON Y CUENTA NUEVA                         #
-#                 OTRA FORMA DE HACER LO MISMO                     #
-# **************************************************************** #
 #  CLASS DEFINITION                                                #
 # **************************************************************** #
 
@@ -92,8 +89,8 @@ class CityMapTile:
     def __init__(self, x, y, xorig=0, yorig=0):
         self.axis_x = x
         self.axis_y = y
-        self.xorig = xorig
-        self.yorig = yorig
+        self.x_origin = xorig
+        self.y_origin = yorig
 
     def movepopulation(self, population):
         self.population = population
@@ -115,8 +112,8 @@ class CityMapBlock:
     def __init__(self, x, y, xorig=0, yorig=0):
         self.axis_x = x
         self.axis_y = y
-        self.xorig = xorig
-        self.yorig = yorig
+        self.x_origin = xorig
+        self.y_origin = yorig
         self.tilesetinit()
 
     def tilesetinit(self):
