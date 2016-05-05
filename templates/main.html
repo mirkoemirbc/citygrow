@@ -3,19 +3,6 @@
 {% block bodycontent %}
 <h2>Bello World</h2>
 <table class="table">
-    {% for row in map_data %}
-    <tr>
-        {% for col in row %}
-        <td>
-            {{ col }}
-        </td>
-        {% endfor %}
-    </tr>
-    {% endfor %}
-</table>
-<br>
-<br>
-<table class="table">
     {% for row in user_map %}
     <tr>
         {% for col in row %}
