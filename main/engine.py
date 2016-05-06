@@ -1,20 +1,12 @@
 import random
 
 # My Imports
-from main.datadef import list_map_tiles
+from main.datadef import list_map_tiles, map_tiles_center
+from main.datadef import map_tiles_build_value, map_tiles_ground_value
 from collections import defaultdict
 
 # Local Constants
 infPoint = 8
-
-# Define static list of tuple with tiles code and influence.
-map_tiles_value = (('00000', 0.5), ('00003', 0.5), ('00011', 0.5),
-                   ('00012', 1.0), ('00013', 1.0), ('00022', 1.0),
-                   ('00041', 1.0), ('00061', 1.0), ('00073', 1.0),
-                   ('00083', 1.0), ('00302', 1.0), ('00402', 1.0),
-                   ('00501', 1.0))
-
-map_tiles_center = ('00091', 10.0)
 
 
 def percent(num1, num2):
@@ -117,6 +109,7 @@ class CityMapBlock:
         self.tilesetinit()
 
     def tilesetinit(self):
+        """ This initiate a grid with some pre-config tiles."""
         return
 
 
