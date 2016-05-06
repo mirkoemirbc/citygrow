@@ -75,7 +75,7 @@ def evaluateCityGrow(x, y):
 
 
 # **************************************************************** #
-#  CLASS DEFINITION                                                #
+#  NEW CLASS DEFINITION                                            #
 # **************************************************************** #
 
 class CityMapTile:
