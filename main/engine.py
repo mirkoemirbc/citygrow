@@ -1,9 +1,8 @@
 import random
 
 # My Imports
-from main.datadef import list_map_tiles, map_tiles_center
+from main.datadef import range_tiles_type
 from main.datadef import map_tiles_build_value, map_tiles_ground_value
-from collections import defaultdict
 
 # Local Constants
 infPoint = 8
@@ -12,58 +11,6 @@ infPoint = 8
 def percent(num1, num2):
     """ Return the percent """
     return round(num1 / num2 * 100, 2)
-
-
-# ALL THIS IS DEPRECATED ------------------------------ #
-# Define array for data saving
-map_data = defaultdict(lambda: defaultdict(int))
-map_growing_rate = defaultdict(lambda: defaultdict(int))
-
-
-def initializeRandomMap(x, y):
-    global map_data, map_growing_rate
-
-    # We'll fillout all array with valid and random information
-    if x > 0 and y > 0:
-        for AxisX in range(0, x):
-            for AxisY in range(0, y):
-                map_data[AxisX][AxisY] = random.choice(list_map_tiles)
-                map_growing_rate[AxisX][AxisY] = 1
-    else:
-        return False
-
-    # Define the City Center spot
-    rand_x = int(x / 2) + random.randint(-2, 2)
-    rand_y = int(y / 2) + random.randint(-2, 2)
-    map_data[rand_x][rand_y] = '00091'
-    map_growing_rate[rand_x][rand_y] = 10
-
-    return True
-
-
-def evaluateCityGrow(x, y):
-    # Return amount of population in the growing area.
-    # This function evauate the influence received for all sorounding slots
-    # of a given point of the map.
-    global map_data, map_growing_rate
-
-    randomizer = 20
-    choisenone = 0
-    for AxisX in range(x - 1, x + 1):
-        for AxisY in range(y - 1, y + 1):
-            if map_data[AxisX][AxisY] != 0:
-                if choisenone <= 6:
-                    if random.randint(0, 100) < randomizer:
-                        choisenone += 1
-                        randomizer = 20
-                    else:
-                        randomizer += 25
-                    if choisenone <= 4:
-                        map_growing_rate[AxisX][AxisY] += random.randint(1, 4)
-                    else:
-                        map_growing_rate[AxisX][AxisY] += 1
-                else:
-                    break
 
 
 # **************************************************************** #
@@ -78,7 +25,7 @@ class CityMapTile:
     influence = 1
     population = 0
 
-    def __init__(self, x, y, xorig=0, yorig=0):
+    def __init__(self, x, y, xorig=-1, yorig=-1):
         self.axis_x = x
         self.axis_y = y
         self.x_origin = xorig
@@ -101,7 +48,7 @@ class CityMapBlock:
     populationtotal = 0
     tileset = []
 
-    def __init__(self, x, y, xorig=0, yorig=0):
+    def __init__(self, x, y, xorig, yorig):
         self.axis_x = x
         self.axis_y = y
         self.x_origin = xorig
@@ -116,45 +63,42 @@ class CityMapBlock:
 class UserCityMap:
     """ The City Map class """
 
-    self.citymap = []
-    self.citymapinf = []
-    self.population = []
-    self.xcenter = 0
-    self.ycenter = 0
+    citymap = []
+    population = 0
+    xcenter = 0
+    ycenter = 0
 
-    def __init__(self, xmax, ymax, playerid=0):
+    def __init__(self, xmax, ymax, terrain='GROUND', playerid=0):
         self.xmax = xmax
         self.ymax = ymax
         self.player = playerid
-        self.initcitymap()
+        self.initcitymapground(terrain, True if playerid != 0 else False)
 
-    def initcitymap(self):
-        """ Initiate the City Map randomly """
+    def initcitymapground(self, terrain, scratch):
+        """ Initiate the City Map terrain randomly from scratch """
         for axis_x in range(self.xmax):
             col = []
-            inf = []
-            pop = []
             for axis_y in range(self.ymax):
-                col.append(random.choice(list_map_tiles))
-                inf.append(1.0)
-                pop.append(0)
+                rangetile = random.randint(range_tiles_type[terrain][0],
+                                           range_tiles_type[terrain][1])
+                col.append(map_tiles_ground_value[rangetile][0])
 
-            self.citymapinf.append(inf)
             self.citymap.append(col)
-            self.population.append(pop)
 
-        # Define the City Center spot
-        self.xcenter = int(self.xmax / 2) + random.randint(-2, 2)
-        self.ycenter = int(self.ymax / 2) + random.randint(-2, 2)
-        # Change the City Center Code here
-        self.citymap[self.xcenter][self.ycenter] = map_tiles_center[0]
-        self.citymapinf[self.xcenter][self.ycenter] = map_tiles_center[1]
+        if scratch:
+            # Define the City Center spot
+            self.xcenter = int(self.xmax / 2) + random.randint(-2, 2)
+            self.ycenter = int(self.ymax / 2) + random.randint(-2, 2)
+            # Change the City Center Code here
+            self.citymap[self.xcenter][self.ycenter] = map_tiles_build_value['CENTER'][0]
+        # TODO: Fill up with random number of pre-done blocks
+        # of Slum / Ruined Houses.
 
     def citycenter(self):
         """ Return the axis_x and axis_y where the City Center is located. """
         return [self.xcenter, self.ycenter]
 
-    def citygrow(self, x, y):
+    def cityexpand(self, x, y):
         """ Evaluate a point in the map and grow the zone sorrounding """
         randomizer = 20
         choisenone = 0
@@ -183,7 +127,7 @@ class UserCityMap:
         # si ha llegado al 80% de la influencia total. Luego marcar como
         # "no cambiante".
 
-    def citygrowinhabitant(self, x, y):
+    def cityexpandinhabitant(self, x, y):
         """ Inspect all building beside the point and raise the resident number """
         for axis_x in range(x - 1 if x - 1 >= 0 else 0,
                             x + 1 if x + 1 <= self.xmax else self.xmax):
