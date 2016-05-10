@@ -142,7 +142,7 @@ class UserCityMap:
                                 self.citymapinf[axis_x][axis_y] += 1
 
         # TODO: recorrer los edificios cercanos al punto y sumar habitantes,
-        # si ha llegado al 80% de la influencia total. Luego marcar como
+        # si ha llegado al 75% de la influencia total. Luego marcar como
         # "no cambiante".
 
     def cityexpandinhabitant(self, x, y):
