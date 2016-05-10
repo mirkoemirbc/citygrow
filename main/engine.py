@@ -48,21 +48,28 @@ class CityMapBlock:
     populationtotal = 0
     tileset = []
 
-    def __init__(self, x, y, xorig, yorig):
+    def __init__(self, x, y, building):
         self.axis_x = x
         self.axis_y = y
-        self.x_origin = xorig
-        self.y_origin = yorig
-        self.tilesetinit()
+        self.x_origin = x
+        self.y_origin = y
+        self.tilesetinit(building)
 
-    def tilesetinit(self):
+    def tilesetinit(self, building):
         """ This initiate a grid with some pre-config tiles."""
+        # Here initiate random block of buildings taking in account
+        # building parameter
+        return
+
+    def findnearestblock(self, direction):
+        """ This search for another object in relative direction """
         return
 
 
 class UserCityMap:
     """ The City Map class """
 
+    citymapground = []
     citymap = []
     population = 0
     xcenter = 0
@@ -83,16 +90,27 @@ class UserCityMap:
                                            range_tiles_type[terrain][1])
                 col.append(map_tiles_ground_value[rangetile][0])
 
-            self.citymap.append(col)
+            self.citymapground.append(col)
 
         if scratch:
             # Define the City Center spot
             self.xcenter = int(self.xmax / 2) + random.randint(-2, 2)
             self.ycenter = int(self.ymax / 2) + random.randint(-2, 2)
-            # Change the City Center Code here
-            self.citymap[self.xcenter][self.ycenter] = map_tiles_build_value['CENTER'][0]
-        # TODO: Fill up with random number of pre-done blocks
-        # of Slum / Ruined Houses.
+            citycenterblock = CityMapBlock(self.xcenter,
+                                           self.ycenter,
+                                           'CENTER')
+            self.citymap.append(citycenterblock)
+
+            # Fill up with random number of pre-done blocks
+            # of Slum / Ruined / Common Houses.
+            for housescount in range(random.randint(2, 6)):
+                rand_x = self.xcenter + random.randint(-10, 10)
+                rand_y = self.ycenter + random.randint(-10, 10)
+                house_type = random.choice('SLUM_HOUSE',
+                                           'RUINED_HOUSE',
+                                           'COMMON_HOUSE')
+                citybuild = CityMapBlock(rand_x, rand_y, house_type)
+                self.citymap.append(citybuild)
 
     def citycenter(self):
         """ Return the axis_x and axis_y where the City Center is located. """
