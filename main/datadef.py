@@ -8,11 +8,6 @@ error_population = {
     'NO_LIMITS': -4,
 }
 
-# Define static list sequence for elements choises. OBSOLETE!
-list_map_tiles = ('00000', '00003', '00011', '00012', '00013', '00022',
-                  '00041', '00061', '00073', '00083', '00302', '00402',
-                  '00501')
-
 # Define static dictionary of tuples with kind of tiles.
 range_tiles_type = {'NOT_AVAILABLE': (0, 9),
                     # Terrain / Ground tiles
@@ -118,3 +113,6 @@ map_tiles_build_value = {90: ('00090', 10.0), 'CENTER': ('00090', 10.0),
                          }
 
 map_tiles_center = ('00090', 10.0)
+
+map_block_code = {10000: ('10000'),  # Deserted Block
+                  }
