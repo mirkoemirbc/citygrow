@@ -32,15 +32,22 @@ class CityMapBlock:
         self.height = height
         self.width = width
         self.population_block = 0
-        self.blocktileset = '10000'
+        self.blocktileset = 10000
 
     def findnearestblock(self, direction):
         """ This search for another object in relative direction """
         return
 
     def blocktilesetinit(self, building):
-        """ This will """
+        """ This will set the initial parameters for the completely block """
         return
+
+    def blocktileset_per_population(self, inhabitants):
+        """ Returns the tilesetcode of the block taking in account population """
+        if self.blocktileset >= 10000 and self.blocktileset < 20000:
+            return self.blocktileset + int(self.blocktileset / 25)
+        else:
+            return self.blocktileset
 
 
 class UserCityMap:
