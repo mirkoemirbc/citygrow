@@ -54,7 +54,17 @@ class CityMapBlock:
         ysup_neighbour = yinf_neighbour - neighbour.height - 2
 
         # Return True if the neighbour block is within this block borders.
-        return False
+        # Check out TOP BORDER
+        if ysup > yinf_neighbour:
+            return False
+        elif yinf < ysup_neighbour:
+            return False
+        if xinf > xsup_neighbour:
+            return False
+        elif xsup < xinf_neighbour:
+            return False
+
+        return True
 
     def findnearestblock(self, direction):
         """ This search for another object in relative direction """
@@ -94,7 +104,6 @@ class UserCityMap:
 
     def initcitymapground(self, terrain, scratch):
         """ Initiate the City Map terrain randomly from scratch """
-        import pdb; pdb.set_trace()
         for axis_x in range(self.xmax):
             col = []
             for axis_y in range(self.ymax):
@@ -116,16 +125,21 @@ class UserCityMap:
             # Fill up with random number of pre-done blocks
             # of Slum / Ruined Houses.
             for housescount in range(random.randint(2, 8)):
-                rand_x = self.xcenter + random.randint(-20 if self.xcenter - 20 > 0 else 1,
-                                                       20 if self.xcenter + 20 < self.xmax - 5 else self.xmax - 5)
-                rand_y = self.ycenter + random.randint(-20 if self.ycenter - 20 > 5 else 5,
-                                                       20 if self.ycenter + 20 < self.ymax - 5 else self.xmax - 5)
-                house_type = random.choice('SLUM_HOUSE',
-                                           'RUINED_HOUSE')
+                range_inf = -10 if self.xcenter - 10 > 0 else 1
+                range_sup = 10 if self.xcenter + 10 < self.xmax - 5 else self.xmax - 5
+                rand_x = self.xcenter + random.randint(range_inf, range_sup)
+                range_inf = -10 if self.ycenter - 10 > 5 else 5
+                range_sup = 10 if self.ycenter + 10 < self.ymax - 5 else self.xmax - 5
+                rand_y = self.ycenter + random.randint(range_inf, range_sup)
+
+                house_type = random.choice(('SLUM_HOUSE',
+                                           'RUINED_HOUSE'))
                 citybuild = CityMapBlock(rand_x, rand_y, house_type)
-                citybuild.population_block = random.randint(0, 4)
+                citybuild.population_block = random.randint(1, 4)
                 self.citymap.append(citybuild)
                 self.populationtotal += citybuild.population_block
+
+            self.populationidletotal = self.populationtotal
 
     def citycenter(self):
         """ Return the axis_x and axis_y where the City Center is located. """
