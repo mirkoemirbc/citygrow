@@ -1,8 +1,8 @@
 import random
 
 # My Imports
-from main.datadef import range_tiles_type
-from main.datadef import map_tiles_build_value, map_tiles_ground_value
+from main.datadef import range_tiles_type, range_block_type
+from main.datadef import map_block_code, map_tiles_ground_value
 
 # Local Constants
 infPoint = 8
@@ -23,16 +23,38 @@ class CityMapBlock:
     hitpoint = 0
     hp_total = 0
     population_block = 0
+    blocktileset = 10000
+    health_level = 0
 
-    def __init__(self, x, y, height=5, width=5, building):
+    def __init__(self, x, y, building, scratch=True, height=5, width=5):
         self.axis_x = x
         self.axis_y = y
         self.x_origin = x
         self.y_origin = y
         self.height = height
         self.width = width
-        self.population_block = 0
-        self.blocktileset = 10000
+        if scratch:
+            self.blocktilesetinit(building)
+
+    def blocktilesetoverlap(self, neighbour):
+        """ This determines if this block is overlapping another block """
+        # Calculate xsup,ysup and xinf,yinf. This way we know the block.
+        # Take in account the outter columns and rows as just road.
+        xinf = self.x_origin
+        yinf = self.y_origin
+
+        xsup = xinf + self.width - 2
+        ysup = yinf - self.height - 2
+
+        # Calculate xsup,ysup and xinf,yinf for neighbour block.
+        xinf_neighbour = neighbour.x_origin
+        yinf_neighbour = neighbour.y_origin
+
+        xsup_neighbour = xinf_neighbour + neighbour.width - 2
+        ysup_neighbour = yinf_neighbour - neighbour.height - 2
+
+        # Return True if the neighbour block is within this block borders.
+        return False
 
     def findnearestblock(self, direction):
         """ This search for another object in relative direction """
@@ -40,12 +62,14 @@ class CityMapBlock:
 
     def blocktilesetinit(self, building):
         """ This will set the initial parameters for the completely block """
-        return
+        initialcode = random.choice(range_block_type[building])
+        self.blocktileset = initialcode
+        return initialcode
 
     def blocktileset_per_population(self, inhabitants):
         """ Returns the tilesetcode of the block taking in account population """
         if self.blocktileset >= 10000 and self.blocktileset < 20000:
-            return self.blocktileset + int(self.blocktileset / 25)
+            return self.blocktileset + int(self.blocktileset / 20)
         else:
             return self.blocktileset
 
@@ -70,6 +94,7 @@ class UserCityMap:
 
     def initcitymapground(self, terrain, scratch):
         """ Initiate the City Map terrain randomly from scratch """
+        import pdb; pdb.set_trace()
         for axis_x in range(self.xmax):
             col = []
             for axis_y in range(self.ymax):
