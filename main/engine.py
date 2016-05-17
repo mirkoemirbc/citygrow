@@ -44,24 +44,21 @@ class CityMapBlock:
         yinf = self.y_origin
 
         xsup = xinf + self.width - 2
-        ysup = yinf - self.height - 2
+        ysup = yinf + self.height - 2
 
         # Calculate xsup,ysup and xinf,yinf for neighbour block.
-        xinf_neighbour = neighbour.x_origin
-        yinf_neighbour = neighbour.y_origin
+        # For Neighbour, we'll consider the roads as well.
+        xinf_neighbour = neighbour.x_origin - 1
+        yinf_neighbour = neighbour.y_origin - 1
 
-        xsup_neighbour = xinf_neighbour + neighbour.width - 2
-        ysup_neighbour = yinf_neighbour - neighbour.height - 2
+        xsup_neighbour = xinf_neighbour + neighbour.width
+        ysup_neighbour = yinf_neighbour + neighbour.height
 
         # Return True if the neighbour block is within this block borders.
-        # Check out TOP BORDER
-        if ysup > yinf_neighbour:
+        # Check out every BORDER.
+        if ysup > yinf_neighbour or yinf < ysup_neighbour:
             return False
-        elif yinf < ysup_neighbour:
-            return False
-        if xinf > xsup_neighbour:
-            return False
-        elif xsup < xinf_neighbour:
+        if xinf > xsup_neighbour or xsup < xinf_neighbour:
             return False
 
         return True
@@ -136,6 +133,18 @@ class UserCityMap:
                                            'RUINED_HOUSE'))
                 citybuild = CityMapBlock(rand_x, rand_y, house_type)
                 citybuild.population_block = random.randint(1, 4)
+
+                # Control that the new block doesn't overlap another in map
+                for tempmap in self.citymap:
+                    tabstr = ' ' * len(self.citymap)
+                    if citybuild.blocktilesetoverlap(tempmap):
+                        print(tabstr + "OVERLAP!!")
+                        while citybuild.blocktilesetoverlap(tempmap):
+                            citybuild.x_origin += 1
+                    else:
+                        print(tabstr + "NOT OVERLAP!!")
+
+                # Add the new block into the citymap.
                 self.citymap.append(citybuild)
                 self.populationtotal += citybuild.population_block
 
@@ -187,3 +196,16 @@ class UserCityMap:
 
     # TODO: Recorrer los tiles de la zona de influencia, desmarcando los
     # que eran "no cambiante"
+
+    def citymapprintcoord(self):
+        """ This function is only for console use """
+        for i, listelem in enumerate(self.citymap):
+            print("[" + str(i) + "] (" + str(listelem.axis_x) +
+                  "," + str(listelem.axis_y) + ") [W:" +
+                  str(listelem.width) + " H:" + str(listelem.height) + "]" +
+                  " [Pop: " + str(listelem.population_block) + "]")
+            print("    " + str(listelem.axis_x - 1) + "," +
+                  str(listelem.axis_y - 1) + " : " +
+                  str(listelem.axis_x + listelem.width - 1) +
+                  "," + str(listelem.axis_y + listelem.height - 1) +
+                  " -> " + str(listelem.blocktileset))
