@@ -56,12 +56,14 @@ class CityMapBlock:
 
         # Return True if the neighbour block is within this block borders.
         # Check out every BORDER.
-        if ysup > yinf_neighbour or yinf < ysup_neighbour:
-            return False
-        if xinf > xsup_neighbour or xsup < xinf_neighbour:
-            return False
-
-        return True
+        if (xinf_neighbour >= xinf and yinf_neighbour >= yinf) and \
+           (xinf_neighbour <= xsup and yinf_neighbour <= ysup):
+           return True
+        elif (xsup_neighbour >= xinf and ysup_neighbour >= yinf) and \
+           (xsup_neighbour <= xsup and ysup_neighbour <= ysup):
+           return True
+        else:
+           return False
 
     def findnearestblock(self, direction):
         """ This search for another object in relative direction """
@@ -136,11 +138,17 @@ class UserCityMap:
 
                 # Control that the new block doesn't overlap another in map
                 for tempmap in self.citymap:
-                    tabstr = ' ' * len(self.citymap)
+                    tabstr = '.' * len(self.citymap)
                     if citybuild.blocktilesetoverlap(tempmap):
-                        print(tabstr + "OVERLAP!!")
+                        print(tabstr + "OVERLAP!! [map: " + str(tempmap.x_origin) + 
+                              "," + str(tempmap.y_origin) + "] [new: " +
+                              str(citybuild.x_origin) + "," + str(citybuild.x_origin) + "]")
                         while citybuild.blocktilesetoverlap(tempmap):
-                            citybuild.x_origin += 1
+                            # import ipdb; ipdb.set_trace()
+                            overrand_x = self.xcenter + random.randint(range_inf, range_sup)
+                            citybuild.x_origin = overrand_x
+                            overrand_y = self.ycenter + random.randint(range_inf, range_sup)
+                            citybuild.y_origin = overrand_y
                     else:
                         print(tabstr + "NOT OVERLAP!!")
 
