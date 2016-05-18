@@ -58,12 +58,12 @@ class CityMapBlock:
         # Check out every BORDER.
         if (xinf_neighbour >= xinf and yinf_neighbour >= yinf) and \
            (xinf_neighbour <= xsup and yinf_neighbour <= ysup):
-           return True
+            return True
         elif (xsup_neighbour >= xinf and ysup_neighbour >= yinf) and \
-           (xsup_neighbour <= xsup and ysup_neighbour <= ysup):
-           return True
+             (xsup_neighbour <= xsup and ysup_neighbour <= ysup):
+            return True
         else:
-           return False
+            return False
 
     def findnearestblock(self, direction):
         """ This search for another object in relative direction """
@@ -161,6 +161,59 @@ class UserCityMap:
     def citycenter(self):
         """ Return the axis_x and axis_y where the City Center is located. """
         return [self.xcenter, self.ycenter]
+
+    def findnearestblock(self, blockref, direction='ALL'):
+        """ This search for another object in relative direction from a reference object """
+        return_id = -1
+        return_x = -1
+        return_y = -1
+        for i, listelem in self.citymap:
+            # We'll check for the north (consider if the choice is ALL)
+            if direction == 'ALL' or direction == 'NORTH':
+                if blockref.x_origin - blockref.width < listelem.x_origin and \
+                   blockref.x_origin + (blockref.width * 2) > \
+                   listelem.x_origin and blockref.y_origin + blockref.height <\
+                   listelem.y_origin and return_y < listelem.y_origin:
+                    return_x = listelem.x_origin
+                    return_y = listelem.y_origin
+                    return_id = i
+            # We'll check for Noreast (consider if the choice is ALL)
+            elif direction == 'ALL' or direction == 'NE':
+                if blockref.x_origin + blockref.width < listelem.x_origin and \
+                   blockref.y_origin + blockref.height < \
+                   listelem.x_origin and listelem.x_origin < return_x and \
+                   listelem.y_origin < return_y:
+                    return_x = listelem.x_origin
+                    return_y = listelem.y_origin
+                    return_id = i
+            elif direction == 'ALL' or direction == 'EAST':
+                if blockref.x_origin + blockref.width < listelem.x_origin and \
+                   blockref.y_origin - blockref.height > \
+                   listelem.y_origin and \
+                   blockref.y_origin + (blockref.height * 2) < \
+                   listelem.y_origin and listelem.x_origin < return_x:
+                    return_x = listelem.x_origin
+                    return_y = listelem.y_origin
+                    return_id = i
+            elif direction == 'ALL' or direction == 'SE':
+                if blockref.x_origin + blockref.width < listelem.x_origin and \
+                   blockref.y_origin + blockref.height < listelem.y_origin and\
+                   blockref.x_origin < listelem.x_origin and \
+                   listelem.x_origin < return_x and \
+                   listelem.y_origin < return_y:
+                    return_x = listelem.x_origin
+                    return_y = listelem.y_origin
+                    return_id = i
+            elif direction == 'ALL' or direction == 'SOUTH':
+                return
+            elif direction == 'ALL' or direction == 'SW':
+                return
+            elif direction == 'ALL' or direction == 'WEST':
+                return
+            elif direction == 'ALL' or direction == 'NW':
+                return
+            else:
+                return (return_id, return_x, return_y)
 
     def cityexpand(self, x, y):
         """ Evaluate a point in the map and grow the zone sorrounding """
