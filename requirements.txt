@@ -1,0 +1,5 @@
+Django==1.9.5
+django-extensions==1.6.1
+decorator==4.0.9
+ipython==4.2.0
+ipdb
