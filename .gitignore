@@ -24,6 +24,7 @@ var/
 .installed.cfg
 *.egg
 pip-selfcheck.*
+*.pyc
 
 # Static Distro
 !main/static/

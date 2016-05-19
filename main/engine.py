@@ -27,8 +27,6 @@ class CityMapBlock:
     health_level = 0
 
     def __init__(self, x, y, building, scratch=True, height=5, width=5):
-        self.axis_x = x
-        self.axis_y = y
         self.x_origin = x
         self.y_origin = y
         self.height = height
@@ -51,16 +49,23 @@ class CityMapBlock:
         xinf_neighbour = neighbour.x_origin - 1
         yinf_neighbour = neighbour.y_origin - 1
 
-        xsup_neighbour = xinf_neighbour + neighbour.width
-        ysup_neighbour = yinf_neighbour + neighbour.height
+        xsup_neighbour = xinf_neighbour + neighbour.width - 1
+        ysup_neighbour = yinf_neighbour + neighbour.height - 1
 
         # Return True if the neighbour block is within this block borders.
         # Check out every BORDER.
-        if (xinf_neighbour >= xinf and yinf_neighbour >= yinf) and \
-           (xinf_neighbour <= xsup and yinf_neighbour <= ysup):
+        # import ipdb; ipdb.set_trace()
+        if (xsup_neighbour >= xinf >= xinf_neighbour) and \
+           (ysup_neighbour >= yinf >= yinf_neighbour):
             return True
-        elif (xsup_neighbour >= xinf and ysup_neighbour >= yinf) and \
-             (xsup_neighbour <= xsup and ysup_neighbour <= ysup):
+        elif (xsup_neighbour >= xsup >= xinf_neighbour) and \
+             (ysup_neighbour >= yinf >= yinf_neighbour):
+            return True
+        elif (xsup_neighbour >= xinf >= xinf_neighbour) and \
+             (ysup_neighbour >= ysup >= yinf_neighbour):
+            return True
+        elif (xsup_neighbour >= xsup >= xinf_neighbour) and \
+             (ysup_neighbour >= ysup >= yinf_neighbour):
             return True
         else:
             return False
@@ -123,7 +128,7 @@ class UserCityMap:
 
             # Fill up with random number of pre-done blocks
             # of Slum / Ruined Houses.
-            for housescount in range(random.randint(2, 8)):
+            for housescount in range(random.randint(3, 8)):
                 range_inf = -10 if self.xcenter - 10 > 0 else 1
                 range_sup = 10 if self.xcenter + 10 < self.xmax - 5 else self.xmax - 5
                 rand_x = self.xcenter + random.randint(range_inf, range_sup)
@@ -140,7 +145,7 @@ class UserCityMap:
                 for tempmap in self.citymap:
                     tabstr = '.' * len(self.citymap)
                     if citybuild.blocktilesetoverlap(tempmap):
-                        print(tabstr + "OVERLAP!! [map: " + str(tempmap.x_origin) + 
+                        print(tabstr + "OVERLAP!! [map: " + str(tempmap.x_origin) +
                               "," + str(tempmap.y_origin) + "] [new: " +
                               str(citybuild.x_origin) + "," + str(citybuild.x_origin) + "]")
                         while citybuild.blocktilesetoverlap(tempmap):
@@ -167,53 +172,81 @@ class UserCityMap:
         return_id = -1
         return_x = -1
         return_y = -1
-        for i, listelem in self.citymap:
+        for i, listelem in enumerate(self.citymap):
             # We'll check for the north (consider if the choice is ALL)
             if direction == 'ALL' or direction == 'NORTH':
-                if blockref.x_origin - blockref.width < listelem.x_origin and \
-                   blockref.x_origin + (blockref.width * 2) > \
-                   listelem.x_origin and blockref.y_origin + blockref.height <\
-                   listelem.y_origin and return_y < listelem.y_origin:
-                    return_x = listelem.x_origin
-                    return_y = listelem.y_origin
-                    return_id = i
-            # We'll check for Noreast (consider if the choice is ALL)
-            elif direction == 'ALL' or direction == 'NE':
-                if blockref.x_origin + blockref.width < listelem.x_origin and \
-                   blockref.y_origin + blockref.height < \
-                   listelem.x_origin and listelem.x_origin < return_x and \
-                   listelem.y_origin < return_y:
-                    return_x = listelem.x_origin
-                    return_y = listelem.y_origin
-                    return_id = i
-            elif direction == 'ALL' or direction == 'EAST':
-                if blockref.x_origin + blockref.width < listelem.x_origin and \
-                   blockref.y_origin - blockref.height > \
-                   listelem.y_origin and \
-                   blockref.y_origin + (blockref.height * 2) < \
-                   listelem.y_origin and listelem.x_origin < return_x:
-                    return_x = listelem.x_origin
-                    return_y = listelem.y_origin
-                    return_id = i
-            elif direction == 'ALL' or direction == 'SE':
-                if blockref.x_origin + blockref.width < listelem.x_origin and \
-                   blockref.y_origin + blockref.height < listelem.y_origin and\
-                   blockref.x_origin < listelem.x_origin and \
-                   listelem.x_origin < return_x and \
-                   listelem.y_origin < return_y:
-                    return_x = listelem.x_origin
-                    return_y = listelem.y_origin
-                    return_id = i
-            elif direction == 'ALL' or direction == 'SOUTH':
-                return
-            elif direction == 'ALL' or direction == 'SW':
-                return
-            elif direction == 'ALL' or direction == 'WEST':
-                return
-            elif direction == 'ALL' or direction == 'NW':
-                return
-            else:
-                return (return_id, return_x, return_y)
+                if blockref.x_origin - blockref.width <= listelem.x_origin and \
+                   blockref.x_origin + (blockref.width * 2) >= listelem.x_origin and \
+                   blockref.y_origin + blockref.height <= listelem.y_origin:
+                    if return_y > listelem.y_origin or return_y == -1:
+                        return_x = listelem.x_origin
+                        return_y = listelem.y_origin
+                        return_id = i
+            # We'll check for North East (consider if the choice is ALL)
+            if direction == 'ALL' or direction == 'NE':
+                import ipdb; ipdb.set_trace()
+                if blockref.x_origin + blockref.width <= listelem.x_origin and \
+                   blockref.y_origin + blockref.height <= listelem.y_origin:
+                    if (return_x > listelem.x_origin or return_x == -1) and \
+                       (return_y > listelem.y_origin or return_y == -1):
+                        return_x = listelem.x_origin
+                        return_y = listelem.y_origin
+                        return_id = i
+            # We'll check for East (consider if the choice is ALL)
+            if direction == 'ALL' or direction == 'EAST':
+                if blockref.x_origin + blockref.width <= listelem.x_origin and \
+                   blockref.y_origin - blockref.height >= listelem.y_origin and \
+                   blockref.y_origin + (blockref.height * 2) <= listelem.y_origin:
+                    if return_x > listelem.x_origin or return_x == -1:
+                        return_x = listelem.x_origin
+                        return_y = listelem.y_origin
+                        return_id = i
+            # We'll check for South East (consider if the choice is ALL)
+            if direction == 'ALL' or direction == 'SE':
+                if blockref.x_origin + blockref.width <= listelem.x_origin and \
+                   blockref.y_origin + blockref.height <= listelem.y_origin:
+                    if (return_x > listelem.x_origin or return_x == -1) and \
+                       (return_y > listelem.y_origin or return_y == -1):
+                        return_x = listelem.x_origin
+                        return_y = listelem.y_origin
+                        return_id = i
+            # We'll check for South (consider if the choice is ALL)
+            if direction == 'ALL' or direction == 'SOUTH':
+                if blockref.x_origin - blockref.width <= listelem.x_origin and \
+                   blockref.x_origin + (blockref.width * 2) >= listelem.x_origin and \
+                   blockref.y_origin - 1 >= listelem.y_origin:
+                    if return_y < listelem.y_origin or return_y == -1:
+                        return_x = listelem.x_origin
+                        return_y = listelem.y_origin
+                        return_id = i
+            # We'll check for South West (consider if the choice is ALL)
+            if direction == 'ALL' or direction == 'SW':
+                if blockref.x_origin - 1 >= listelem.x_origin and \
+                   blockref.y_origin + blockref.height <= listelem.y_origin:
+                    if (return_x > listelem.x_origin or return_x == -1) and \
+                       (return_y > listelem.y_origin or return_y == -1):
+                        return_x = listelem.x_origin
+                        return_y = listelem.y_origin
+                        return_id = i
+            # We'll check for West (consider if the choice is ALL)
+            if direction == 'ALL' or direction == 'WEST':
+                if blockref.x_origin - 1 >= listelem.x_origin and \
+                   blockref.y_origin - blockref.height >= listelem.y_origin and \
+                   blockref.y_origin + (blockref.height * 2) <= listelem.y_origin:
+                    if return_x < listelem.x_origin:
+                        return_x = listelem.x_origin
+                        return_y = listelem.y_origin
+                        return_id = i
+            # We'll check for North West (consider if the choice is ALL)
+            if direction == 'ALL' or direction == 'NW':
+                if blockref.x_origin - 1 >= listelem.x_origin and \
+                   blockref.y_origin + blockref.height <= listelem.y_origin:
+                    if return_x < listelem.x_origin and return_y < listelem.y_origin:
+                        return_x = listelem.x_origin
+                        return_y = listelem.y_origin
+                        return_id = i
+
+        return (return_id, return_x, return_y)
 
     def cityexpand(self, x, y):
         """ Evaluate a point in the map and grow the zone sorrounding """
@@ -261,12 +294,12 @@ class UserCityMap:
     def citymapprintcoord(self):
         """ This function is only for console use """
         for i, listelem in enumerate(self.citymap):
-            print("[" + str(i) + "] (" + str(listelem.axis_x) +
-                  "," + str(listelem.axis_y) + ") [W:" +
+            print("[" + str(i) + "] (" + str(listelem.x_origin) +
+                  "," + str(listelem.y_origin) + ") [W:" +
                   str(listelem.width) + " H:" + str(listelem.height) + "]" +
                   " [Pop: " + str(listelem.population_block) + "]")
-            print("    " + str(listelem.axis_x - 1) + "," +
-                  str(listelem.axis_y - 1) + " : " +
-                  str(listelem.axis_x + listelem.width - 1) +
-                  "," + str(listelem.axis_y + listelem.height - 1) +
+            print("    " + str(listelem.x_origin - 1) + "," +
+                  str(listelem.y_origin - 1) + " : " +
+                  str(listelem.x_origin + listelem.width - 2) +
+                  "," + str(listelem.y_origin + listelem.height - 2) +
                   " -> " + str(listelem.blocktileset))
