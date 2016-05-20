@@ -137,7 +137,7 @@ class UserCityMap:
                 rand_y = self.ycenter + random.randint(range_inf, range_sup)
 
                 house_type = random.choice(('SLUM_HOUSE',
-                                           'RUINED_HOUSE'))
+                                            'RUINED_HOUSE'))
                 citybuild = CityMapBlock(rand_x, rand_y, house_type)
                 citybuild.population_block = random.randint(1, 4)
 
@@ -172,75 +172,72 @@ class UserCityMap:
         return_id = -1
         return_x = -1
         return_y = -1
+
+        refx_origin = blockref.x_origin - 1
+        refy_origin = blockref.y_origin - 1
+        refx_width = blockref.x_origin + blockref.width - 2
+        refy_height = blockref.y_origin + blockref.height - 2
+
         for i, listelem in enumerate(self.citymap):
-            # We'll check for the north (consider if the choice is ALL)
+            # We'll check for the North (consider if the choice is ALL)
             if direction == 'ALL' or direction == 'NORTH':
-                if blockref.x_origin - blockref.width <= listelem.x_origin and \
-                   blockref.x_origin + (blockref.width * 2) >= listelem.x_origin and \
-                   blockref.y_origin + blockref.height <= listelem.y_origin:
-                    if return_y > listelem.y_origin or return_y == -1:
-                        return_x = listelem.x_origin
-                        return_y = listelem.y_origin
-                        return_id = i
-            # We'll check for North East (consider if the choice is ALL)
-            if direction == 'ALL' or direction == 'NE':
-                import ipdb; ipdb.set_trace()
-                if blockref.x_origin + blockref.width <= listelem.x_origin and \
-                   blockref.y_origin + blockref.height <= listelem.y_origin:
-                    if (return_x > listelem.x_origin or return_x == -1) and \
-                       (return_y > listelem.y_origin or return_y == -1):
+                if (refx_origin <= listelem.x_origin <= refx_width) and \
+                   (listelem.y_origin >= refy_origin):
+                    if (return_y > listelem.y_origin or return_y == -1):
                         return_x = listelem.x_origin
                         return_y = listelem.y_origin
                         return_id = i
             # We'll check for East (consider if the choice is ALL)
             if direction == 'ALL' or direction == 'EAST':
-                if blockref.x_origin + blockref.width <= listelem.x_origin and \
-                   blockref.y_origin - blockref.height >= listelem.y_origin and \
-                   blockref.y_origin + (blockref.height * 2) <= listelem.y_origin:
+                if (listelem.x_origin >= refx_width) and \
+                   (refy_origin >= listelem.y_origin >= refy_height):
                     if return_x > listelem.x_origin or return_x == -1:
-                        return_x = listelem.x_origin
-                        return_y = listelem.y_origin
-                        return_id = i
-            # We'll check for South East (consider if the choice is ALL)
-            if direction == 'ALL' or direction == 'SE':
-                if blockref.x_origin + blockref.width <= listelem.x_origin and \
-                   blockref.y_origin + blockref.height <= listelem.y_origin:
-                    if (return_x > listelem.x_origin or return_x == -1) and \
-                       (return_y > listelem.y_origin or return_y == -1):
                         return_x = listelem.x_origin
                         return_y = listelem.y_origin
                         return_id = i
             # We'll check for South (consider if the choice is ALL)
             if direction == 'ALL' or direction == 'SOUTH':
-                if blockref.x_origin - blockref.width <= listelem.x_origin and \
-                   blockref.x_origin + (blockref.width * 2) >= listelem.x_origin and \
-                   blockref.y_origin - 1 >= listelem.y_origin:
+                if (refx_origin <= listelem.x_origin <= refx_origin) and \
+                   (listelem.y_origin <= refy_origin):
                     if return_y < listelem.y_origin or return_y == -1:
-                        return_x = listelem.x_origin
-                        return_y = listelem.y_origin
-                        return_id = i
-            # We'll check for South West (consider if the choice is ALL)
-            if direction == 'ALL' or direction == 'SW':
-                if blockref.x_origin - 1 >= listelem.x_origin and \
-                   blockref.y_origin + blockref.height <= listelem.y_origin:
-                    if (return_x > listelem.x_origin or return_x == -1) and \
-                       (return_y > listelem.y_origin or return_y == -1):
                         return_x = listelem.x_origin
                         return_y = listelem.y_origin
                         return_id = i
             # We'll check for West (consider if the choice is ALL)
             if direction == 'ALL' or direction == 'WEST':
-                if blockref.x_origin - 1 >= listelem.x_origin and \
-                   blockref.y_origin - blockref.height >= listelem.y_origin and \
-                   blockref.y_origin + (blockref.height * 2) <= listelem.y_origin:
+                if (listelem.x_origin <= refx_origin) and \
+                   (refy_origin >= listelem.y_origin >= refy_height):
                     if return_x < listelem.x_origin:
+                        return_x = listelem.x_origin
+                        return_y = listelem.y_origin
+                        return_id = i
+            # We'll check for North East (consider if the choice is ALL)
+            if direction == 'ALL' or direction == 'NE':
+                if (listelem.x_origin >= refx_width) and (listelem.y_origin >= refy_height):
+                    if (return_x > listelem.x_origin or return_x == -1) and \
+                       (return_y > listelem.y_origin or return_y == -1):
+                        return_x = listelem.x_origin
+                        return_y = listelem.y_origin
+                        return_id = i
+            # We'll check for South East (consider if the choice is ALL)
+            if direction == 'ALL' or direction == 'SE':
+                if (listelem.x_origin >= refx_width) and (listelem.y_origin <= refy_origin):
+                    if (return_x > listelem.x_origin or return_x == -1) and \
+                       (return_y > listelem.y_origin or return_y == -1):
+                        return_x = listelem.x_origin
+                        return_y = listelem.y_origin
+                        return_id = i
+            # We'll check for South West (consider if the choice is ALL)
+            if direction == 'ALL' or direction == 'SW':
+                if (listelem.x_origin <= refx_origin) and (listelem.y_origin <= refy_origin):
+                    if (return_x > listelem.x_origin or return_x == -1) and \
+                       (return_y > listelem.y_origin or return_y == -1):
                         return_x = listelem.x_origin
                         return_y = listelem.y_origin
                         return_id = i
             # We'll check for North West (consider if the choice is ALL)
             if direction == 'ALL' or direction == 'NW':
-                if blockref.x_origin - 1 >= listelem.x_origin and \
-                   blockref.y_origin + blockref.height <= listelem.y_origin:
+                if (listelem.x_origin <= refx_origin) and (listelem.y_origin >= refy_height):
                     if return_x < listelem.x_origin and return_y < listelem.y_origin:
                         return_x = listelem.x_origin
                         return_y = listelem.y_origin
