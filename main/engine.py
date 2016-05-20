@@ -5,7 +5,6 @@ from main.datadef import range_tiles_type, range_block_type
 from main.datadef import map_block_code, map_tiles_ground_value
 
 # Local Constants
-infPoint = 8
 
 
 def percent(num1, num2):
@@ -86,6 +85,16 @@ class CityMapBlock:
             return self.blocktileset + int(self.blocktileset / 20)
         else:
             return self.blocktileset
+
+    def cityexpandinhabitant(self, blockref):
+        """
+        Inspect all blocks around the point and raise resident number
+        TODO: recorrer los edificios cercanos al punto y sumar habitantes,
+        si ha llegado al 75% de la influencia total. Luego marcar como
+        "no cambiante".
+        """
+        if percent(self.citymapinf, blockref.citymapinf) > 75:
+            self.populationtotal += random.randint(1, 2)
 
 
 class UserCityMap:
@@ -179,6 +188,9 @@ class UserCityMap:
         refy_height = blockref.y_origin + blockref.height - 2
 
         for i, listelem in enumerate(self.citymap):
+            if (blockref.x_origin == listelem.x_origin) and \
+               (blockref.y_origin == listelem.y_origin):
+                continue
             # We'll check for the North (consider if the choice is ALL)
             if direction == 'ALL' or direction == 'NORTH':
                 if (refx_origin <= listelem.x_origin <= refx_width) and \
@@ -269,24 +281,6 @@ class UserCityMap:
                         else:
                             if self.citymapinf[axis_x][axis_y] + 1 < self.citymapinf[x][y]:
                                 self.citymapinf[axis_x][axis_y] += 1
-
-        # TODO: recorrer los edificios cercanos al punto y sumar habitantes,
-        # si ha llegado al 75% de la influencia total. Luego marcar como
-        # "no cambiante".
-
-    def cityexpandinhabitant(self, x, y):
-        """ Inspect all blocks around the point and raise resident number """
-        for axis_x in range(x - 1 if x - 1 >= 0 else 0,
-                            x + 1 if x + 1 <= self.xmax else self.xmax):
-            for axis_y in range(y - 1 if y - 1 >= 0 else 0,
-                                y + 1 if y + 1 <= self.ymax else self.ymax):
-                if axis_x != x and axis_y != y:
-                    if percent(self.citymapinf[axis_x][axis_y],
-                               self.citymapinf[x][y]) > 75:
-                        self.populationtotal[axis_x][axis_y] += 1
-
-    # TODO: Recorrer los tiles de la zona de influencia, desmarcando los
-    # que eran "no cambiante"
 
     def citymapprintcoord(self):
         """ This function is only for console use """
