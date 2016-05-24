@@ -24,6 +24,8 @@ class CityMapBlock:
     population_block = 0
     blocktileset = 10000
     health_level = 0
+    must_change = True
+    influence = 0
 
     def __init__(self, x, y, building, scratch=True, height=5, width=5):
         self.x_origin = x
@@ -88,13 +90,23 @@ class CityMapBlock:
 
     def cityexpandinhabitant(self, blockref):
         """
-        Inspect all blocks around the point and raise resident number
-        TODO: recorrer los edificios cercanos al punto y sumar habitantes,
-        si ha llegado al 75% de la influencia total. Luego marcar como
-        "no cambiante".
+        Compare influence between two blocks and raise residents number by 1 or 2
+        if the influence is at 75% or greater.
         """
-        if percent(self.citymapinf, blockref.citymapinf) > 75:
-            self.populationtotal += random.randint(1, 2)
+        if percent(self.influence, blockref.influence) > 75:
+            if self.must_change:
+                self.population_block += random.randint(1, 2)
+                self.must_change = False
+            else:
+                self.must_change = True
+
+    def cityexpandinfluence(self):
+        """
+        Depends on the blocktype influence, the influence of self block will raise.
+        The raise is multiplied by a random number between 1 and 3.
+        """
+        influenceplus = map_block_code[self.blocktileset][1] * random.randint(1, 3)
+        self.influence += influenceplus
 
 
 class UserCityMap:
@@ -175,6 +187,9 @@ class UserCityMap:
     def citycenter(self):
         """ Return the axis_x and axis_y where the City Center is located. """
         return [self.xcenter, self.ycenter]
+
+    def citymapinfluencegreaterthan(self, limit):
+        return
 
     def findnearestblock(self, blockref, direction='ALL'):
         """ This search for another object in relative direction from a reference object """
@@ -257,30 +272,30 @@ class UserCityMap:
 
         return (return_id, return_x, return_y)
 
-    def cityexpand(self, x, y):
-        """ Evaluate a point in the map and grow the zone sorrounding """
-        randomizer = 20
-        choisenone = 0
-        for axis_x in range(x - 1 if x - 1 >= 0 else 0,
-                            x + 1 if x + 1 <= self.xmax else self.xmax):
-            for axis_y in range(y - 1 if y - 1 >= 0 else 0,
-                                y + 1 if y + 1 <= self.ymax else self.ymax):
-                if axis_x != x and axis_y != y:
-                    if choisenone <= 6:
-                        if random.randint(0, 100) < randomizer:
-                            choisenone += 1
-                            randomizer = 20
-                        else:
-                            randomizer += 25
-                        if choisenone <= 4:
-                            rn = random.randint(1, 3) + random.random()
-                            if self.citymapinf[axis_x][axis_y] + rn < self.citymapinf[x][y]:
-                                self.citymapinf[axis_x][axis_y] += rn
-                            else:
-                                self.citymapinf[axis_x][axis_y] = self.citymapinf[x][y]
-                        else:
-                            if self.citymapinf[axis_x][axis_y] + 1 < self.citymapinf[x][y]:
-                                self.citymapinf[axis_x][axis_y] += 1
+    def cityexpand(self):
+        """
+        Evaluate a point in the map and grow the zone sorrounding.
+        The function will evaluate each cardinal point and raise the influence of random number
+        of blocks.
+        """
+        influencegt = 5
+        cardinaldirection = ('NORTH', 'NE', 'EAST', 'SE', 'SOUTH', 'SW', 'WEST', 'NW')
+
+        # First, collect all block id with influence greater than influencegt [default = 5]
+        blocklist = self.citymapinfluencegreaterthan(influencegt)
+        for blocks in blocklist:
+            nearestblocks = []
+            # Verify all blocks in the influence zone. Saving the nearest in every direction.
+            for eachcardinal in cardinaldirection:
+                nearestblocks[eachcardinal] = self.findnearestblock(blocks, eachcardinal)[0]
+                if nearestblocks[eachcardinal] >= 0:
+                    nearestblocks[eachcardinal].cityexpandinfluence()
+                    nearestblocks[eachcardinal].cityexpandinhabitant(blocks)
+                else:
+                    # If there is not any block in this direction, then try to create a new block
+                    # with new SLUM. Maybe this is not possible.
+                    pass
+        return
 
     def citymapprintcoord(self):
         """ This function is only for console use """
