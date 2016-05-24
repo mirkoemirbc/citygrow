@@ -25,7 +25,7 @@ class CityMapBlock:
     blocktileset = 10000
     health_level = 0
     must_change = True
-    influence = 0
+    influence = 0.0
 
     def __init__(self, x, y, building, scratch=True, height=5, width=5):
         self.x_origin = x
@@ -71,10 +71,6 @@ class CityMapBlock:
         else:
             return False
 
-    def findnearestblock(self, direction):
-        """ This search for another object in relative direction """
-        return
-
     def blocktilesetinit(self, building):
         """ This will set the initial parameters for the completely block """
         initialcode = random.choice(range_block_type[building])
@@ -93,7 +89,8 @@ class CityMapBlock:
         Compare influence between two blocks and raise residents number by 1 or 2
         if the influence is at 75% or greater.
         """
-        if percent(self.influence, blockref.influence) > 75:
+        if percent(self.influence, blockref.influence) > 75 and \
+           percent(self.influence, blockref.influence) < 100:
             if self.must_change:
                 self.population_block += random.randint(1, 2)
                 self.must_change = False
@@ -142,9 +139,8 @@ class UserCityMap:
             # Define the City Center spot
             self.xcenter = int(self.xmax / 2) + random.randint(-2, 2)
             self.ycenter = int(self.ymax / 2) + random.randint(-2, 2)
-            citycenterblock = CityMapBlock(self.xcenter,
-                                           self.ycenter,
-                                           'CENTER')
+            citycenterblock = CityMapBlock(self.xcenter, self.ycenter, 'CENTER')
+            citycenterblock.influence = map_block_code[90][1]
             self.citymap.append(citycenterblock)
 
             # Fill up with random number of pre-done blocks
@@ -161,6 +157,7 @@ class UserCityMap:
                                             'RUINED_HOUSE'))
                 citybuild = CityMapBlock(rand_x, rand_y, house_type)
                 citybuild.population_block = random.randint(1, 4)
+                citybuild.influence = 0.15
 
                 # Control that the new block doesn't overlap another in map
                 for tempmap in self.citymap:
@@ -189,7 +186,12 @@ class UserCityMap:
         return [self.xcenter, self.ycenter]
 
     def citymapinfluencegreaterthan(self, limit):
-        return
+        """ Return a list of blocks with high influence """
+        listreturn = []
+        for blocks in self.citymap:
+            if blocks.influence >= limit:
+                listreturn.append(blocks)
+        return listreturn
 
     def findnearestblock(self, blockref, direction='ALL'):
         """ This search for another object in relative direction from a reference object """
@@ -279,23 +281,134 @@ class UserCityMap:
         of blocks.
         """
         influencegt = 5
-        cardinaldirection = ('NORTH', 'NE', 'EAST', 'SE', 'SOUTH', 'SW', 'WEST', 'NW')
+        cardinaldirection = ['NORTH', 'NE', 'EAST', 'SE', 'SOUTH', 'SW', 'WEST', 'NW']
 
         # First, collect all block id with influence greater than influencegt [default = 5]
         blocklist = self.citymapinfluencegreaterthan(influencegt)
-        for blocks in blocklist:
-            nearestblocks = []
+        for importantblocks in blocklist:
             # Verify all blocks in the influence zone. Saving the nearest in every direction.
-            for eachcardinal in cardinaldirection:
-                nearestblocks[eachcardinal] = self.findnearestblock(blocks, eachcardinal)[0]
-                if nearestblocks[eachcardinal] >= 0:
+            for ind, eachcardinal in enumerate(cardinaldirection):
+                nearestblock = importantblocks.findnearestblock(eachcardinal)[0]
+                if nearestblock >= 0:
                     nearestblocks[eachcardinal].cityexpandinfluence()
-                    nearestblocks[eachcardinal].cityexpandinhabitant(blocks)
+                    nearestblocks[eachcardinal].cityexpandinhabitant(importantblocks)
                 else:
                     # If there is not any block in this direction, then try to create a new block
-                    # with new SLUM. Maybe this is not possible.
-                    pass
-        return
+                    # with new SLUM_HOUSE. Maybe this is not possible.
+                    if eachcardinal == 'NORTH':
+                        if importantblocks.y_origin + 6 <= self.ymax:
+                            new_x = importantblocks.x_origin
+                            new_y = importantblocks.y_origin + 4
+                            newblock = CityMapBlock(new_x, new_y, 'SLUM_HOUSE')
+                            while newblock.blocktilesetoverlap(nearestblocks[eachcardinal]):
+                                newblock.y_origin += 1
+                                if newblock.y_origin > self.ymax - 3:
+                                    break
+                            else:
+                                newblock.population_block = random.randint(1, 3)
+                                self.citymap.append(newblock)
+
+                    elif eachcardinal == 'EAST':
+                        if importantblocks.x_origin + 6 <= self.xmax:
+                            new_x = importantblocks.x_origin + 4
+                            new_y = importantblocks.y_origin
+                            newblock = CityMapBlock(new_x, new_y, 'SLUM_HOUSE')
+                            while newblock.blocktilesetoverlap(nearestblocks[eachcardinal]):
+                                newblock.x_origin += 1
+                                if newblock.x_origin > self.xmax - 3:
+                                    break
+                            else:
+                                newblock.population_block = random.randint(1, 3)
+                                self.citymap.append(newblock)
+
+                    elif eachcardinal == 'SOUTH':
+                        if importantblocks.y_origin - 4 >= 0:
+                            new_x = importantblocks.x_origin
+                            new_y = importantblocks.y_origin - 4
+                            newblock = CityMapBlock(new_x, new_y, 'SLUM_HOUSE')
+                            while newblock.blocktilesetoverlap(nearestblocks[eachcardinal]):
+                                newblock.x_origin -= 1
+                                if newblock.x_origin < 0:
+                                    break
+                            else:
+                                newblock.population_block = random.randint(1, 3)
+                                self.citymap.append(newblock)
+
+                    elif eachcardinal == 'WEST':
+                        if importantblocks.x_origin - 4 >= 0:
+                            new_x = importantblocks.x_origin - 4
+                            new_y = importantblocks.y_origin
+                            newblock = CityMapBlock(new_x, new_y, 'SLUM_HOUSE')
+                            while newblock.blocktilesetoverlap(nearestblocks[eachcardinal]):
+                                newblock.x_origin -= 1
+                                if newblock.x_origin < 0:
+                                    break
+                            else:
+                                newblock.population_block = random.randint(1, 3)
+                                self.citymap.append(newblock)
+
+                    elif eachcardinal == 'NE':
+                        if importantblocks.x_origin + 6 <= self.xmax and \
+                           importantblocks.y_origin + 6 <= self.ymax:
+                            new_x = importantblocks.x_origin + 4
+                            new_y = importantblocks.y_origin + 4
+                            newblock = CityMapBlock(new_x, new_y, 'SLUM_HOUSE')
+                            while newblock.blocktilesetoverlap(nearestblocks[eachcardinal]):
+                                newblock.x_origin += 1
+                                newblock.y_origin += 1
+                                if newblock.x_origin > self.xmax - 3 or \
+                                   newblock.y_origin > self.ymax - 3:
+                                    break
+                            else:
+                                newblock.population_block = random.randint(1, 3)
+                                self.citymap.append(newblock)
+
+                    elif eachcardinal == 'SE':
+                        if importantblocks.x_origin + 6 <= self.xmax and \
+                           importantblocks.y_origin - 4 >= 0:
+                            new_x = importantblocks.x_origin + 4
+                            new_y = importantblocks.y_origin - 4
+                            newblock = CityMapBlock(new_x, new_y, 'SLUM_HOUSE')
+                            while newblock.blocktilesetoverlap(nearestblocks[eachcardinal]):
+                                newblock.x_origin -= 1
+                                newblock.y_origin += 1
+                                if newblock.x_origin < 0 or \
+                                   newblock.y_origin > self.ymax - 3:
+                                    break
+                            else:
+                                newblock.population_block = random.randint(1, 3)
+                                self.citymap.append(newblock)
+
+                    elif eachcardinal == 'SW':
+                        if importantblocks.x_origin + 6 <= self.xmax and \
+                           importantblocks.y_origin - 4 >= 0:
+                            new_x = importantblocks.x_origin - 4
+                            new_y = importantblocks.y_origin - 4
+                            newblock = CityMapBlock(new_x, new_y, 'SLUM_HOUSE')
+                            while newblock.blocktilesetoverlap(nearestblocks[eachcardinal]):
+                                newblock.x_origin -= 1
+                                newblock.y_origin -= 1
+                                if newblock.x_origin < 0 or newblock.y_origin < 0:
+                                    break
+                            else:
+                                newblock.population_block = random.randint(1, 3)
+                                self.citymap.append(newblock)
+
+                    else:
+                        if importantblocks.x_origin - 4 >= 0 and \
+                           importantblocks.y_origin + 6 <= self.ymax:
+                            new_x = importantblocks.x_origin - 4
+                            new_y = importantblocks.y_origin + 4
+                            newblock = CityMapBlock(new_x, new_y, 'SLUM_HOUSE')
+                            while newblock.blocktilesetoverlap(nearestblocks[eachcardinal]):
+                                newblock.x_origin -= 1
+                                newblock.y_origin += 1
+                                if newblock.x_origin < 0 or \
+                                   newblock.y_origin > self.ymax - 3:
+                                    break
+                            else:
+                                newblock.population_block = random.randint(1, 3)
+                                self.citymap.append(newblock)
 
     def citymapprintcoord(self):
         """ This function is only for console use """
@@ -303,7 +416,8 @@ class UserCityMap:
             print("[" + str(i) + "] (" + str(listelem.x_origin) +
                   "," + str(listelem.y_origin) + ") [W:" +
                   str(listelem.width) + " H:" + str(listelem.height) + "]" +
-                  " [Pop: " + str(listelem.population_block) + "]")
+                  " [Pop: " + str(listelem.population_block) + "][Inf: " +
+                  str(listelem.influence) + "]")
             print("    " + str(listelem.x_origin - 1) + "," +
                   str(listelem.y_origin - 1) + " : " +
                   str(listelem.x_origin + listelem.width - 2) +

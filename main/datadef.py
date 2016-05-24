@@ -150,6 +150,8 @@ range_block_type = {'NOT_AVAILABLE': (10000, 10009),
                     }
 
 map_block_code = {10000: ('10000', 0.0),  # Deserted Block
+                  # City Center
+                  90: ('00090', 10.0),
                   # Common Houses.
                   10010: ('10010', 0.5), 10030: ('10030', 0.5),
                   10050: ('10050', 0.5), 10070: ('10070', 0.5),
